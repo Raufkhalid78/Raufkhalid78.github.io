@@ -884,6 +884,38 @@
             resize: vertical;
         }
 
+        /* Form Messages */
+        .form-success {
+            background: #10b981;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: slideDown 0.3s ease;
+        }
+
+        .form-error {
+            background: #ef4444;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* Footer */
         footer {
             background: var(--dark);
@@ -1183,7 +1215,7 @@
             <div class="hero-btns">
                 <a href="#projects" class="btn">View My Work</a>
                 <a href="#" class="btn btn-outline" id="hireMeBtn">Hire Me</a>
-                <a href="https://resume-rk.netlify.app/" class="btn btn-accent" id="downloadResume">Download Resume</a>
+                <a href="#" class="btn btn-accent" id="downloadResume">Download Resume</a>
             </div>
         </div>
     </section>
@@ -1354,11 +1386,11 @@
                     <ul class="contact-details">
                         <li>
                             <i class="fas fa-map-marker-alt"></i>
-                            <span>Available for remote work worldwide</a></span>
+                            <span>Available for remote work worldwide</span>
                         </li>
                         <li>
                             <i class="fas fa-envelope"></i>
-                            <span>reach@raufkhalid.us.kg</a></span>
+                            <span>reach@raufkhalid.us.kg</span>
                         </li>
                         <li>
                             <i class="fas fa-phone"></i>
@@ -1367,20 +1399,27 @@
                     </ul>
                 </div>
                 <div class="contact-form">
-                    <form id="contactForm">
+                    <!-- Formspree Contact Form - REPLACE YOUR_FORM_ID with actual Formspree ID -->
+                    <form action="https://formspree.io/f/mkgyjbyk" method="POST" id="contactForm">
+                        <div id="formMessages"></div>
                         <div class="form-group">
-                            <input type="text" placeholder="Your Name" required>
+                            <input type="text" name="name" placeholder="Your Name" required>
                         </div>
                         <div class="form-group">
-                            <input type="email" placeholder="Your Email" required>
+                            <input type="email" name="email" placeholder="Your Email" required>
                         </div>
                         <div class="form-group">
-                            <input type="text" placeholder="Subject">
+                            <input type="text" name="subject" placeholder="Subject">
                         </div>
                         <div class="form-group">
-                            <textarea placeholder="Your Message" required></textarea>
+                            <textarea name="message" placeholder="Your Message" required></textarea>
                         </div>
-                        <button type="submit" class="btn">Send Message</button>
+                        <button type="submit" class="btn" id="contactSubmit">
+                            <span class="btn-text">Send Message</span>
+                            <span class="btn-loading" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Sending...
+                            </span>
+                        </button>
                     </form>
                 </div>
             </div>
@@ -1392,7 +1431,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="logo">
-                     <span class="signature">Rauf Khalid</span>
+                    <span class="signature">Rauf Khalid</span>
                 </div>
                 <div class="social-links">
                     <a href="https://www.linkedin.com/in/rauf-khalid/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
@@ -1416,23 +1455,25 @@
     <div class="modal" id="hireModal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
-            <h2>Hire Rauf Khalid</h2>
+            <h2>Hire, Rauf Khalid</h2>
             <p>Let's discuss how I can help your business grow. Fill out the form below and I'll get back to you within 24 hours.</p>
-            <form id="hireForm">
+            <!-- Formspree Hire Form - REPLACE YOUR_HIRE_FORM_ID with actual Formspree ID -->
+            <form action="https://formspree.io/f/xblwgynb" method="POST" id="hireForm">
+                <div id="hireFormMessages"></div>
                 <div class="form-group">
-                    <input type="text" placeholder="Your Name" required>
+                    <input type="text" name="name" placeholder="Your Name" required>
                 </div>
                 <div class="form-group">
-                    <input type="email" placeholder="Your Email" required>
+                    <input type="email" name="email" placeholder="Your Email" required>
                 </div>
                 <div class="form-group">
-                    <input type="text" placeholder="Company Name">
+                    <input type="text" name="company" placeholder="Company Name">
                 </div>
                 <div class="form-group">
-                    <textarea placeholder="Project Details" required></textarea>
+                    <textarea name="projectDetails" placeholder="Project Details" required></textarea>
                 </div>
                 <div class="form-group">
-                    <select>
+                    <select name="service">
                         <option value="">Select Service</option>
                         <option value="amazon">Amazon Seller Central</option>
                         <option value="data">Data Entry & Analytics</option>
@@ -1441,7 +1482,12 @@
                         <option value="other">Other</option>
                     </select>
                 </div>
-                <button type="submit" class="btn">Send Inquiry</button>
+                <button type="submit" class="btn" id="hireSubmit">
+                    <span class="btn-text">Send Inquiry</span>
+                    <span class="btn-loading" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i> Sending...
+                    </span>
+                </button>
             </form>
         </div>
     </div>
@@ -1599,19 +1645,90 @@
             alert('Resume download would start now. In a real implementation, this would link to a PDF file.');
         });
 
-        // Form Submissions
-        document.getElementById('contactForm').addEventListener('submit', (e) => {
+        // Form handling with Formspree
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            alert('Thank you for your message! I will get back to you soon.');
-            e.target.reset();
+            
+            const submitBtn = document.getElementById('contactSubmit');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoading = submitBtn.querySelector('.btn-loading');
+            const formMessages = document.getElementById('formMessages');
+            
+            // Show loading state
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline';
+            submitBtn.disabled = true;
+            
+            try {
+                const formData = new FormData(this);
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    formMessages.innerHTML = '<div class="form-success">Thank you for your message! I will get back to you soon.</div>';
+                    this.reset();
+                } else {
+                    throw new Error('Form submission failed');
+                }
+            } catch (error) {
+                formMessages.innerHTML = '<div class="form-error">Sorry, there was an error sending your message. Please try again or email me directly.</div>';
+            } finally {
+                // Reset button state
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+                submitBtn.disabled = false;
+            }
         });
 
-        document.getElementById('hireForm').addEventListener('submit', (e) => {
+        // Hire form handling
+        document.getElementById('hireForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            alert('Thank you for your inquiry! I will review your project details and get back to you within 24 hours.');
-            e.target.reset();
-            hireModal.style.display = 'none';
-            document.body.style.overflow = 'auto';
+            
+            const submitBtn = document.getElementById('hireSubmit');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoading = submitBtn.querySelector('.btn-loading');
+            const formMessages = document.getElementById('hireFormMessages');
+            
+            // Show loading state
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline';
+            submitBtn.disabled = true;
+            
+            try {
+                const formData = new FormData(this);
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    formMessages.innerHTML = '<div class="form-success">Thank you for your inquiry! I will review your project details and get back to you within 24 hours.</div>';
+                    this.reset();
+                    
+                    // Close modal after 2 seconds
+                    setTimeout(() => {
+                        hireModal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }, 2000);
+                } else {
+                    throw new Error('Form submission failed');
+                }
+            } catch (error) {
+                formMessages.innerHTML = '<div class="form-error">Sorry, there was an error sending your inquiry. Please try again or email me directly.</div>';
+            } finally {
+                // Reset button state
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+                submitBtn.disabled = false;
+            }
         });
 
         // Header background on scroll
