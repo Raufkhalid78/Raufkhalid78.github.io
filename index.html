@@ -229,12 +229,17 @@
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
             transition: var(--transition);
             backdrop-filter: blur(10px);
+            left: 0; /* Ensure it starts from left edge */
+            right: 0; /* Ensure it ends at right edge */
         }
 
         .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            max-width: 1200px; /* Add this */
+            margin: 0 auto; /* Add this */
+            width: 90%; /* Add this */
         }
 
         .logo {
@@ -310,7 +315,7 @@
         }
 
         nav ul li {
-            margin-left: 30px;
+            margin-left: 20px;
             position: relative;
         }
 
@@ -1831,10 +1836,12 @@
         <div class="modal-content">
             <span class="close-modal">&times;</span>
             <div class="modal-header">
-                <h2>Hire Rauf Khalid</h2>
+                <h2>Hire, Rauf Khalid</h2>
                 <p>Let's discuss how I can help your business grow. Fill out the form below and I'll get back to you within 24 hours.</p>
             </div>
-            
+            <!-- Formspree Hire Form - REPLACE YOUR_HIRE_FORM_ID with actual Formspree ID -->
+            <form action="https://formspree.io/f/xblwgynb" method="POST" id="hireForm">
+                
             <div class="form-container">
                 <form id="hireForm">
                     <div id="hireFormMessages"></div>
